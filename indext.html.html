@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weave Lab · Learning Design for the AI Era</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #0f0e0c;
+    --ink2:   #3a3830;
+    --ink3:   #6a6860;
+    --bg:     #ffffff;
+    --bg2:    #f7f6f2;
+    --bg3:    #e8e4da;
+    --gold:   #b8860b;
+    --gold2:  #f0d070;
+    --gold3:  #fdf8e8;
+    --teal:   #0e4a3e;
+    --teal2:  #1a7a60;
+    --teal3:  #e0f2ec;
+    --nav-h:  72px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── UTILITY ── */
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::before { content: ''; width: 24px; height: 1.5px; background: var(--gold); flex-shrink: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.18; color: var(--ink);
+  }
+  .section-title em { color: var(--teal); font-style: italic; }
+  .section-sub { font-size: 17px; color: var(--ink2); line-height: 1.7; max-width: 600px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+    padding: 13px 26px; border-radius: 6px; cursor: pointer;
+    text-decoration: none; border: none; transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(14,74,62,0.25); }
+  .btn-outline { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+  .btn-outline:hover { background: var(--teal3); }
+  .btn-gold { background: var(--gold); color: white; }
+  .btn-gold:hover { background: #9a720a; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(184,134,11,0.3); }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--nav-h);
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .navbar.scrolled {
+    border-color: var(--bg3);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 100%;
+  }
+  .logo-lockup { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--teal); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 20px; height: 20px; }
+  .logo-text {}
+  .logo-name { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--ink); letter-spacing: 0.02em; display: block; line-height: 1.2; }
+  .logo-tagline { font-size: 10px; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; }
+  .nav-links { display: flex; align-items: center; gap: 36px; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500; color: var(--ink2);
+    text-decoration: none; transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+    height: 1.5px; background: var(--teal); transform: scaleX(0);
+    transition: transform 0.2s; transform-origin: left;
+  }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta { margin-left: 12px; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+  .hamburger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; transition: all 0.3s; }
+  .mobile-menu {
+    display: none; position: fixed; inset: 0; background: white; z-index: 99;
+    flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+    padding: 40px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a { font-size: 24px; font-weight: 500; color: var(--ink); text-decoration: none; }
+  .mobile-menu-close { position: absolute; top: 24px; right: 32px; font-size: 28px; cursor: pointer; color: var(--ink3); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: calc(var(--nav-h) + 80px) 0 100px;
+    background: linear-gradient(160deg, var(--bg) 55%, var(--teal3) 100%);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -120px; right: -120px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(26,122,96,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--gold3); border: 1px solid rgba(184,134,11,0.25);
+    border-radius: 100px; padding: 6px 14px; margin-bottom: 24px;
+    font-size: 12px; font-weight: 500; color: var(--gold);
+  }
+  .hero-badge-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5.5vw, 60px);
+    line-height: 1.1; color: var(--ink); margin-bottom: 22px;
+  }
+  .hero-title em { color: var(--teal); font-style: italic; }
+  .hero-body { font-size: 17px; color: var(--ink2); line-height: 1.75; margin-bottom: 36px; }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+  .hero-proof {
+    display: flex; gap: 24px; margin-top: 40px; padding-top: 28px;
+    border-top: 1px solid var(--bg3);
+  }
+  .proof-item { }
+  .proof-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--teal); line-height: 1; }
+  .proof-label { font-size: 12px; color: var(--ink3); margin-top: 3px; }
+  .hero-right { position: relative; }
+  .problem-card {
+    background: white; border: 1px solid var(--bg3); border-radius: 12px;
+    padding: 28px; box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  }
+  .problem-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 20px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--bg3);
+  }
+  .problem-item { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 18px; }
+  .problem-item:last-child { margin-bottom: 0; }
+  .p-icon-wrap {
+    width: 36px; height: 36px; min-width: 36px; border-radius: 8px;
+    background: var(--bg2); display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .p-text { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+  .p-text strong { color: var(--ink); font-weight: 600; display: block; margin-bottom: 2px; }
+  .floating-chip {
+    position: absolute; background: white; border: 1px solid var(--bg3);
+    border-radius: 8px; padding: 10px 14px; font-size: 12px; font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08); white-space: nowrap;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal2); }
+  .chip1 { top: -20px; right: -10px; }
+  .chip2 { bottom: -16px; left: -16px; }
+
+  /* ── SECTION GENERIC ── */
+  section { padding: 96px 0; }
+  .section-header { margin-bottom: 56px; }
+  .section-header.centered { text-align: center; }
+  .section-header.centered .eyebrow { justify-content: center; }
+  .section-header.centered .eyebrow::before { display: none; }
+  .section-header.centered .section-sub { margin: 0 auto; }
+
+  /* ── HOW WE WORK ── */
+  .how-section { background: var(--bg2); }
+  .how-header { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: end; margin-bottom: 56px; }
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .how-card {
+    background: white; border: 1px solid var(--bg3); border-radius: 12px;
+    padding: 28px; position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .how-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.08); }
+  .how-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  }
+  .how-card.c1::before { background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+  .how-card.c2::before { background: linear-gradient(90deg, var(--teal), var(--teal2)); }
+  .how-card.c3::before { background: linear-gradient(90deg, #6a3a9e, #9b59b6); }
+  .how-num {
+    font-family: 'Playfair Display', serif; font-size: 48px;
+    color: var(--bg3); font-weight: 700; line-height: 1;
+    margin-bottom: 8px; letter-spacing: -2px;
+  }
+  .how-title { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 12px; line-height: 1.3; }
+  .how-body { font-size: 14px; color: var(--ink2); line-height: 1.7; }
+
+  /* ── WHAT WE OFFER ── */
+  .offer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .offer-card {
+    border: 1px solid var(--bg3); border-radius: 12px; background: white;
+    overflow: hidden; display: flex; flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .offer-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
+  .offer-head { padding: 24px; border-bottom: 1px solid var(--bg3); }
+  .offer-tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 14px;
+  }
+  .tag-entry  { background: #fff3cd; color: #856404; }
+  .tag-core   { background: var(--teal3); color: var(--teal); }
+  .tag-scale  { background: #f0e8ff; color: #4a1a8a; }
+  .offer-title { font-size: 20px; font-weight: 600; color: var(--ink); line-height: 1.25; margin-bottom: 6px; }
+  .offer-sub   { font-size: 13px; color: var(--ink3); }
+  .offer-body  { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+  .offer-desc  { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 20px; }
+  .offer-divider { height: 1px; background: var(--bg3); margin-bottom: 16px; }
+  .offer-detail { font-size: 13px; color: var(--ink2); line-height: 1.6; margin-bottom: 8px; }
+  .offer-detail strong { color: var(--ink); font-weight: 600; }
+  .offer-outcomes { margin-top: auto; padding-top: 16px; }
+  .offer-outcome { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+  .o-dot { width: 5px; height: 5px; min-width: 5px; border-radius: 50%; background: var(--teal2); margin-top: 7px; }
+  .o-text { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+  .offer-accent-1 { border-top: 4px solid var(--gold); }
+  .offer-accent-2 { border-top: 4px solid var(--teal2); }
+  .offer-accent-3 { border-top: 4px solid #6a3a9e; }
+
+  /* ── PHILOSOPHY ── */
+  .philosophy-section { background: var(--teal); }
+  .philosophy-section .eyebrow { color: var(--gold2); }
+  .philosophy-section .eyebrow::before { background: var(--gold2); }
+  .philosophy-section .section-title { color: white; }
+  .phil-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .phil-body { font-size: 16px; color: rgba(255,255,255,0.8); line-height: 1.8; margin-top: 20px; }
+  .phil-points { display: flex; flex-direction: column; gap: 20px; }
+  .phil-point { display: flex; gap: 16px; align-items: flex-start; }
+  .phil-dot {
+    width: 36px; height: 36px; min-width: 36px; border-radius: 8px;
+    background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--gold2); margin-top: 2px;
+  }
+  .phil-text { font-size: 14px; color: rgba(255,255,255,0.82); line-height: 1.65; }
+  .phil-text strong { color: white; font-weight: 600; display: block; margin-bottom: 3px; }
+
+  /* ── WHO IT'S FOR ── */
+  .who-section { background: var(--bg2); }
+  .who-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .who-card {
+    background: white; border: 1px solid var(--bg3); border-radius: 12px;
+    padding: 28px 20px; text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .who-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
+  .who-icon { font-size: 36px; margin-bottom: 14px; line-height: 1; }
+  .who-role { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .who-desc { font-size: 13px; color: var(--ink3); line-height: 1.6; }
+
+  /* ── FACILITATORS ── */
+  .fac-inner {
+    background: var(--bg2); border: 1px solid var(--bg3); border-radius: 16px;
+    padding: 40px 48px; display: flex; gap: 40px; align-items: flex-start;
+  }
+  .fac-avatar {
+    width: 72px; height: 72px; min-width: 72px; border-radius: 50%;
+    background: var(--gold); display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+  }
+  .fac-content { flex: 1; }
+  .fac-name { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 12px; }
+  .fac-bio  { font-size: 15px; color: var(--ink2); line-height: 1.75; margin-bottom: 20px; max-width: 620px; }
+  .fac-creds { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fac-cred {
+    font-size: 12px; background: white; border: 1px solid var(--bg3);
+    border-radius: 4px; padding: 5px 12px; color: var(--ink2); font-weight: 500;
+  }
+
+  /* ── CTA SECTION ── */
+  .cta-section { background: var(--gold3); border-top: 1px solid rgba(184,134,11,0.2); border-bottom: 1px solid rgba(184,134,11,0.2); }
+  .cta-inner { display: grid; grid-template-columns: 1fr auto; gap: 64px; align-items: center; }
+  .cta-title { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.5vw, 38px); color: var(--ink); margin-bottom: 14px; }
+  .cta-body { font-size: 15px; color: var(--ink2); line-height: 1.7; max-width: 500px; }
+  .cta-steps { display: flex; flex-direction: column; gap: 16px; flex-shrink: 0; min-width: 220px; }
+  .cta-step {
+    background: white; border: 1px solid rgba(184,134,11,0.2);
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .cta-step-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 4px; }
+  .cta-step-text { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .cta-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+
+  /* ── CONTACT ── */
+  .contact-section {}
+  .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .contact-form { display: flex; flex-direction: column; gap: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-family: 'Outfit', sans-serif; font-size: 14px;
+    padding: 12px 16px; border: 1.5px solid var(--bg3); border-radius: 8px;
+    background: white; color: var(--ink); outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { border-color: var(--teal2); }
+  .form-group textarea { resize: vertical; min-height: 120px; }
+  .contact-info { }
+  .contact-info-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--ink); margin-bottom: 16px; }
+  .contact-info-body { font-size: 15px; color: var(--ink2); line-height: 1.75; margin-bottom: 32px; }
+  .contact-detail { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; font-size: 14px; }
+  .contact-detail-icon { font-size: 18px; }
+  .contact-detail a { color: var(--teal2); text-decoration: none; }
+  .contact-detail a:hover { text-decoration: underline; }
+
+  /* ── FOOTER ── */
+  footer { background: var(--ink); padding: 56px 0 32px; }
+  .footer-inner { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+  .footer-brand .logo-name { color: white; font-size: 20px; }
+  .footer-brand .logo-tagline { color: rgba(255,255,255,0.4); }
+  .footer-brand .logo-mark { background: rgba(255,255,255,0.1); }
+  .footer-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.75; margin-top: 16px; max-width: 280px; }
+  .footer-col-title { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+  .footer-links { display: flex; flex-direction: column; gap: 10px; }
+  .footer-links a { font-size: 13px; color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: white; }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-copy { font-size: 12px; color: rgba(255,255,255,0.35); }
+  .footer-email { font-size: 12px; color: rgba(255,255,255,0.35); }
+  .footer-email a { color: rgba(255,255,255,0.5); text-decoration: none; }
+  .footer-email a:hover { color: white; }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+  .fade-up-delay-1 { transition-delay: 0.1s; }
+  .fade-up-delay-2 { transition-delay: 0.2s; }
+  .fade-up-delay-3 { transition-delay: 0.3s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+    .hero-right { display: none; }
+    .how-header { grid-template-columns: 1fr; gap: 20px; }
+    .phil-inner { grid-template-columns: 1fr; gap: 48px; }
+    .cta-inner { grid-template-columns: 1fr; gap: 36px; }
+    .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    .how-grid { grid-template-columns: 1fr; }
+    .offer-grid { grid-template-columns: 1fr; }
+    .who-grid { grid-template-columns: 1fr 1fr; }
+    .fac-inner { flex-direction: column; padding: 28px; }
+    .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    .hero-proof { flex-wrap: wrap; gap: 16px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .container { padding: 0 20px; }
+    section { padding: 64px 0; }
+    .who-grid { grid-template-columns: 1fr; }
+    .hero-actions { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="logo-lockup">
+        <div class="logo-mark">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 5 Q10 2.5 17 5" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M3 10 Q10 7.5 17 10" stroke="#f0d070" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M3 15 Q10 12.5 17 15" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-name">Weave Lab</span>
+          <span class="logo-tagline">Learning design for the AI era</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="#how-we-work">How We Work</a>
+        <a href="#programmes">Programmes</a>
+        <a href="#philosophy">Philosophy</a>
+        <a href="#who">Who It's For</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a href="#contact" class="btn btn-primary nav-cta">Get Started</a>
+      <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE MENU ── -->
+<div class="mobile-menu" id="mobile-menu">
+  <span class="mobile-menu-close" onclick="toggleMenu()">×</span>
+  <a href="#how-we-work" onclick="toggleMenu()">How We Work</a>
+  <a href="#programmes" onclick="toggleMenu()">Programmes</a>
+  <a href="#philosophy" onclick="toggleMenu()">Philosophy</a>
+  <a href="#who" onclick="toggleMenu()">Who It's For</a>
+  <a href="#contact" onclick="toggleMenu()">Contact</a>
+  <a href="#contact" class="btn btn-primary" onclick="toggleMenu()">Get Started</a>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          Learning design for the AI era
+        </div>
+        <h1 class="hero-title">We build <em>mini-schools</em><br>inside organisations</h1>
+        <p class="hero-body">Weave Lab helps teams move beyond using AI as a shortcut and learn to use it as a true collaborative partner — producing higher quality work, faster, and with more confidence. Not through one-off workshops, but by building a lasting culture of shared inquiry.</p>
+        <div class="hero-actions">
+          <a href="#programmes" class="btn btn-primary">Explore Programmes &rarr;</a>
+          <a href="#contact" class="btn btn-outline">Talk to Us</a>
+        </div>
+        <div class="hero-proof">
+          <div class="proof-item">
+            <div class="proof-num">3</div>
+            <div class="proof-label">Programme tracks</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-num">5wk</div>
+            <div class="proof-label">Deep-dive programmes</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-num">100%</div>
+            <div class="proof-label">Live expert-led sessions</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-num">∞</div>
+            <div class="proof-label">Assets left with your team</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="floating-chip chip1">
+          <span class="chip-dot"></span> Live AI agent demo day
+        </div>
+        <div class="problem-card">
+          <div class="problem-label">The problem we solve</div>
+          <div class="problem-item">
+            <div class="p-icon-wrap">⚡</div>
+            <div class="p-text">
+              <strong>AI tools are everywhere</strong>
+              Most employees use them superficially — copying outputs without developing real judgment or skill.
+            </div>
+          </div>
+          <div class="problem-item">
+            <div class="p-icon-wrap">🔁</div>
+            <div class="p-text">
+              <strong>One-off trainings don't stick</strong>
+              Without a learning system, knowledge fades and teams revert to old habits within weeks.
+            </div>
+          </div>
+          <div class="problem-item">
+            <div class="p-icon-wrap">🏗️</div>
+            <div class="p-text">
+              <strong>Organisations need infrastructure</strong>
+              Not just content — a school, not a workshop. That's what Weave Lab builds.
+            </div>
+          </div>
+        </div>
+        <div class="floating-chip chip2">
+          <span class="chip-dot"></span> Pre-Texts pedagogy · Harvard-developed
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW WE WORK ── -->
+<section class="how-section" id="how-we-work">
+  <div class="container">
+    <div class="how-header">
+      <div>
+        <div class="eyebrow">Our methodology</div>
+        <h2 class="section-title">How we<br><em>approach</em> learning</h2>
+      </div>
+      <p class="section-sub">We don't teach AI tools. We build the human foundation that makes AI tools actually work — for your team, in your workflows, on your problems.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-card c1 fade-up">
+        <div class="how-num">01</div>
+        <div class="how-title">Start with meaning, not tools</div>
+        <p class="how-body">Before anyone opens a laptop, we use Pre-Texts pedagogy — art-informed methods developed at Harvard that help teams think together, surface assumptions, and build the psychological safety needed to learn something genuinely new. This is what makes the technical learning actually land.</p>
+      </div>
+      <div class="how-card c2 fade-up fade-up-delay-1">
+        <div class="how-num">02</div>
+        <div class="how-title">Build with real problems</div>
+        <p class="how-body">Every session is anchored in your team's actual workflows. Participants don't practise on hypotheticals — they map real friction points, build real tools, and leave with something they can use on Monday morning. Learning happens by doing, not watching.</p>
+      </div>
+      <div class="how-card c3 fade-up fade-up-delay-2">
+        <div class="how-num">03</div>
+        <div class="how-title">Leave something behind</div>
+        <p class="how-body">Every programme generates tangible assets: session recordings, documented workflows, and shared team knowledge. The goal is for learning to compound inside your organisation long after the programme ends — not disappear the moment it's over.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT WE OFFER ── -->
+<section id="programmes">
+  <div class="container">
+    <div class="section-header centered fade-up">
+      <div class="eyebrow">What we offer</div>
+      <h2 class="section-title">Three tracks. One learning arc.</h2>
+      <p class="section-sub" style="margin-top:14px;">Whether your team is starting from zero or ready to build, there's a programme designed for where you are right now.</p>
+    </div>
+    <div class="offer-grid">
+
+      <div class="offer-card offer-accent-1 fade-up">
+        <div class="offer-head">
+          <span class="offer-tag tag-entry">Track 1 · Entry point</span>
+          <div class="offer-title">AI Fluency Masterclass</div>
+          <div class="offer-sub">1 hour · 30–40 people · expert-led broadcast</div>
+        </div>
+        <div class="offer-body">
+          <p class="offer-desc">A high-impact "listen and learn" session for the whole organisation. A Weave Lab expert models exactly how to get premium output from AI — live, on screen. No prep required. Teams leave with a framework they can use the same day.</p>
+          <div class="offer-divider"></div>
+          <p class="offer-detail"><strong>Key technique:</strong> The "Reverse Prompt" — teaching AI what it needs to respond with 95% confidence</p>
+          <p class="offer-detail"><strong>Best for:</strong> First exposure, whole-company orientation, executive teams</p>
+          <p class="offer-detail"><strong>Format:</strong> Remote broadcast, recorded for future use</p>
+          <div class="offer-outcomes">
+            <div class="offer-outcome">
+              <div class="o-dot"></div>
+              <div class="o-text">A shareable AI framework your whole team can act on immediately</div>
+            </div>
+            <div class="offer-outcome">
+              <div class="o-dot"></div>
+              <div class="o-text">Session recording for onboarding and future reference</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-card offer-accent-2 fade-up fade-up-delay-1">
+        <div class="offer-head">
+          <span class="offer-tag tag-core">Track 2 · Deep dive</span>
+          <div class="offer-title">AI Fundamentals Programme</div>
+          <div class="offer-sub">5 weeks · 2 hrs/week · expert-led cohort</div>
+        </div>
+        <div class="offer-body">
+          <p class="offer-desc">A structured 5-week journey through the fundamentals of AI — how it works, how to prompt it well, how to evaluate its outputs, and how to build it into daily work. Expert facilitators lead live sessions where teams learn, question, and practise together in real time.</p>
+          <div class="offer-divider"></div>
+          <p class="offer-detail"><strong>Format:</strong> Live expert-led sessions + structured practice between weeks</p>
+          <p class="offer-detail"><strong>Best for:</strong> Teams who want genuine understanding before they start building</p>
+          <p class="offer-detail"><strong>Closes with:</strong> Applied AI framework each participant owns and can act on</p>
+          <div class="offer-outcomes">
+            <div class="offer-outcome">
+              <div class="o-dot"></div>
+              <div class="o-text">A personal applied AI framework for every participant</div>
+            </div>
+            <div class="offer-outcome">
+              <div class="o-dot"></div>
+              <div class="o-text">Team-level shared vocabulary for evaluating AI outputs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-card offer-accent-3 fade-up fade-up-delay-2">
+        <div class="offer-head">
+          <span class="offer-tag tag-scale">Track 3 · Build</span>
+          <div class="offer-title">Team AI Agent Building</div>
+          <div class="offer-sub">5 weeks · 2 hrs/week · hands-on team sprint</div>
+        </div>
+        <div class="offer-body">
+          <p class="offer-desc">Teams work closely with a Weave Lab expert to design and deploy real AI agents tailored to their own workflows. Equal parts learning and doing — participants leave with a working agent, not just a concept. Closes with a live Demo Day to leadership.</p>
+          <div class="offer-divider"></div>
+          <p class="offer-detail"><strong>Format:</strong> Expert-led labs alternating with meaning-making sessions</p>
+          <p class="offer-detail"><strong>Best for:</strong> Teams ready to build after completing Track 1 or 2</p>
+          <p class="offer-detail"><strong>Closes with:</strong> Live Demo Day — teams present working agents to leadership</p>
+          <div class="offer-outcomes">
+            <div class="offer-outcome">
+              <div class="o-dot"></div>
+              <div class="o-text">A working AI agent deployed to your team's real workflow</div>
+            </div>
+            <div class="offer-outcome">
+              <div class="o-dot"></div>
+              <div class="o-text">Live Demo Day presentation to leadership</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── PHILOSOPHY ── -->
+<section class="philosophy-section" id="philosophy">
+  <div class="container">
+    <div class="phil-inner">
+      <div class="phil-left fade-up">
+        <div class="eyebrow">Our philosophy</div>
+        <h2 class="section-title">AI adoption is a culture challenge first,<br><em>a skills challenge second</em></h2>
+        <p class="phil-body">Most AI training fails because it treats adoption as a technical problem. Weave Lab treats it as a human one. We use art-informed methods (Pre-Texts pedagogy, developed at Harvard) to build the cognitive flexibility teams need to work confidently with ambiguous, generative tools — now and as the landscape keeps changing.</p>
+      </div>
+      <div class="phil-right fade-up fade-up-delay-1">
+        <div class="phil-points">
+          <div class="phil-point">
+            <div class="phil-dot">✦</div>
+            <p class="phil-text">
+              <strong>Teaching for Understanding</strong>
+              Every session is built around real performances of understanding, not passive content consumption
+            </p>
+          </div>
+          <div class="phil-point">
+            <div class="phil-dot">✦</div>
+            <p class="phil-text">
+              <strong>Pre-Texts Pedagogy</strong>
+              Art-informed methods that build psychological safety and shared inquiry before technical learning begins
+            </p>
+          </div>
+          <div class="phil-point">
+            <div class="phil-dot">✦</div>
+            <p class="phil-text">
+              <strong>Andragogy (Knowles)</strong>
+              Adults learn best from real problems, with autonomy, at their own pace. Every build is anchored in actual work
+            </p>
+          </div>
+          <div class="phil-point">
+            <div class="phil-dot">✦</div>
+            <p class="phil-text">
+              <strong>Infrastructure over events</strong>
+              We measure success by what your organisation can do <em style="color:var(--gold2)">after</em> we leave, not during the session
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHO IT'S FOR ── -->
+<section class="who-section" id="who">
+  <div class="container">
+    <div class="section-header centered fade-up">
+      <div class="eyebrow">Who it's for</div>
+      <h2 class="section-title">Built for teams at every stage</h2>
+      <p class="section-sub" style="margin-top:14px;">Whether you're setting direction or doing the work, there's a Weave Lab programme designed for your specific goals.</p>
+    </div>
+    <div class="who-grid">
+      <div class="who-card fade-up">
+        <div class="who-icon">🏢</div>
+        <div class="who-role">CEOs & Executives</div>
+        <p class="who-desc">Building an AI-first culture without disrupting day-to-day operations</p>
+      </div>
+      <div class="who-card fade-up fade-up-delay-1">
+        <div class="who-icon">👥</div>
+        <div class="who-role">HR & L&D Leaders</div>
+        <p class="who-desc">Looking for a learning system, not just another one-off training vendor</p>
+      </div>
+      <div class="who-card fade-up fade-up-delay-2">
+        <div class="who-icon">⚙️</div>
+        <div class="who-role">Functional Teams</div>
+        <p class="who-desc">Sales, ops, finance, marketing — any team with repetitive, high-stakes workflows</p>
+      </div>
+      <div class="who-card fade-up fade-up-delay-3">
+        <div class="who-icon">🚀</div>
+        <div class="who-role">Growth-Stage Companies</div>
+        <p class="who-desc">Scaling fast and need AI fluency built into the org before bad habits set in</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FACILITATORS ── -->
+<section id="facilitators">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="eyebrow">The people behind the programmes</div>
+      <h2 class="section-title">Expert-led, <em>every session</em></h2>
+    </div>
+    <div class="fac-inner fade-up">
+      <div class="fac-avatar">✦</div>
+      <div class="fac-content">
+        <div class="fac-name">Expert facilitation, matched to your team</div>
+        <p class="fac-bio">Every Weave Lab programme is facilitated by a carefully selected expert — practitioners with real-world AI and learning design experience. Sessions are live, interactive, and designed for teams to work closely together: not lecture halls, but shared inquiry. We match facilitator expertise to your industry and goals.</p>
+        <div class="fac-creds">
+          <span class="fac-cred">Live expert facilitation</span>
+          <span class="fac-cred">Industry-matched practitioners</span>
+          <span class="fac-cred">Remote & in-person delivery</span>
+          <span class="fac-cred">Small cohorts for close collaboration</span>
+          <span class="fac-cred">Pre-Texts certified</span>
+          <span class="fac-cred">AI practitioners, not just trainers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="cta-left fade-up">
+        <h2 class="cta-title">Ready to start? The entry point is one hour.</h2>
+        <p class="cta-body">We recommend beginning with a single AI Fluency Masterclass — low risk, immediate value, and a clear signal of what a full learning partnership looks like. Teams typically move into a 5-week programme within weeks of the pilot.</p>
+        <div class="cta-actions">
+          <a href="#contact" class="btn btn-gold">Book a Masterclass &rarr;</a>
+          <a href="#programmes" class="btn btn-outline">View All Programmes</a>
+        </div>
+      </div>
+      <div class="cta-steps fade-up fade-up-delay-1">
+        <div class="cta-step">
+          <div class="cta-step-label">Track 1</div>
+          <div class="cta-step-text">AI Fluency Masterclass</div>
+        </div>
+        <div class="cta-step">
+          <div class="cta-step-label">Track 2</div>
+          <div class="cta-step-text">5-week AI Fundamentals</div>
+        </div>
+        <div class="cta-step">
+          <div class="cta-step-label">Track 3</div>
+          <div class="cta-step-text">5-week Agent Building Sprint</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <div class="contact-info fade-up">
+        <div class="eyebrow">Get in touch</div>
+        <h2 class="contact-info-title">Let's talk about<br>your team's needs</h2>
+        <p class="contact-info-body">Tell us where your team is today — whether you're just curious about AI fluency or ready to deploy agents — and we'll suggest the right starting point. No obligation, no hard sell.</p>
+        <div class="contact-detail">
+          <span class="contact-detail-icon">✉️</span>
+          <a href="mailto:kishore@theweavelab.io">kishore@theweavelab.io</a>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-detail-icon">🌐</span>
+          <a href="https://theweavelab.io" target="_blank">theweavelab.io</a>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-detail-icon">🌍</span>
+          <span style="color:var(--ink2)">Programmes available remotely and in-person worldwide</span>
+        </div>
+      </div>
+      <div class="fade-up fade-up-delay-1">
+        <form class="contact-form" onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Your name</label>
+              <input type="text" id="name" placeholder="Jane Smith" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Work email</label>
+              <input type="email" id="email" placeholder="jane@company.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="Your organisation">
+          </div>
+          <div class="form-group">
+            <label for="track">Which programme interests you?</label>
+            <select id="track">
+              <option value="">Select a track…</option>
+              <option>Track 1 — AI Fluency Masterclass (1 hr)</option>
+              <option>Track 2 — AI Fundamentals Programme (5 weeks)</option>
+              <option>Track 3 — Team AI Agent Building (5 weeks)</option>
+              <option>Not sure yet — help me decide</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Tell us about your team</label>
+            <textarea id="message" placeholder="Team size, current AI usage, goals, any context that helps…"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Send Message &rarr;</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="logo-lockup">
+          <div class="logo-mark">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 5 Q10 2.5 17 5" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M3 10 Q10 7.5 17 10" stroke="#f0d070" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M3 15 Q10 12.5 17 15" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <span class="logo-name">Weave Lab</span>
+            <span class="logo-tagline">Learning design for the AI era</span>
+          </div>
+        </a>
+        <p class="footer-desc">We build mini-schools inside organisations — helping teams develop the judgment, skills, and culture to work confidently with AI.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Programmes</div>
+        <div class="footer-links">
+          <a href="#programmes">AI Fluency Masterclass</a>
+          <a href="#programmes">AI Fundamentals Programme</a>
+          <a href="#programmes">Team AI Agent Building</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <div class="footer-links">
+          <a href="#how-we-work">How We Work</a>
+          <a href="#philosophy">Our Philosophy</a>
+          <a href="#facilitators">Facilitators</a>
+          <a href="#who">Who It's For</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Get in touch</div>
+        <div class="footer-links">
+          <a href="mailto:kishore@theweavelab.io">kishore@theweavelab.io</a>
+          <a href="https://theweavelab.io" target="_blank">theweavelab.io</a>
+          <a href="#contact">Book a call</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 Weave Lab · All rights reserved</div>
+      <div class="footer-email">Questions? <a href="mailto:kishore@theweavelab.io">kishore@theweavelab.io</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Navbar scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Mobile menu
+  function toggleMenu() {
+    document.getElementById('mobile-menu').classList.toggle('open');
+  }
+
+  // Scroll animation observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Contact form
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.textContent = 'Message sent! We\'ll be in touch soon.';
+    btn.style.background = 'var(--teal2)';
+    btn.disabled = true;
+  }
+</script>
+
+</body>
+</html>
